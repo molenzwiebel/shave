@@ -1,0 +1,5 @@
+# Ignore compiled files.
+lib
+
+# Ignore Node files.
+node_modules

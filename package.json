@@ -1,0 +1,35 @@
+{
+  "name": "shave",
+  "version": "0.0.1",
+  "description": "Decompile Ember HTMLBars into their initial source files.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "npm run compile && mocha --compilers js:babel-core/register",
+    "compile": "babel -d lib/ src/",
+    "prepublish": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/molenzwiebel/shave.git"
+  },
+  "keywords": [
+    "handlebars",
+    "htmlbars",
+    "ember",
+    "decompile",
+    "shave"
+  ],
+  "author": "molenzwiebel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/molenzwiebel/shave/issues"
+  },
+  "homepage": "https://github.com/molenzwiebel/shave#readme",
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-core": "^6.9.1",
+    "babel-preset-es2015": "^6.9.0",
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  }
+}

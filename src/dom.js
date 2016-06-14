@@ -1,5 +1,100 @@
 "use strict";
 
+import { AttributeMorph } from "./morph";
+
+/**
+ * Fake DOM manager that talks to the compiled template.
+ */
+export default class HTMLBarsDOM {
+    constructor() {
+        // Prevent Ember v1.xx from trying to clone elements.
+        // It'll just create new nodes when this is `false`.
+        this.canClone = false;
+    }
+
+    /**
+     * Creates a new 'root' fragment.
+     * Due to the way fragments are handled in
+     * HTMLBars, there may be multiple root
+     * fragments inside of other root fragments.
+     */
+    createDocumentFragment() {
+        return new DocumentFragmentNode();
+    }
+
+    /**
+     * Creates a plain text node.
+     */
+    createTextNode(contents) {
+        return new TextNode(contents);
+    }
+
+    /**
+     * Creates a plain comment node.
+     */
+    createComment(contents) {
+        return new CommentNode(contents);
+    }
+
+    /**
+     * Appends `child` to `parent`.
+     */
+    appendChild(parent, child) {
+        parent.children.push(child);
+    }
+
+    /**
+     * Sets raw attribute `key` to `value` in `node`.
+     */
+    setAttribute(node, key, value) {
+        node.attributes[key] = value;
+    }
+
+    /**
+     * Resolves a node through a list of child indexes.
+     */
+    childAt(node, path) {
+        return path.reduce((n, idx) => n.children[idx], node);
+    }
+
+    /**
+     * Creates a new morph that replaces the specified child(ren) of the node.
+     */
+    createMorphAt(node, beginIdx, endIdx) {
+        const morph = new MorphNode(null);
+        node.children.splice(beginIdx, endIdx + 1 - beginIdx, morph);
+        return morph;
+    }
+
+    /**
+     * Creates a new `unsafe` morph.
+     * @see createMorphAt
+     */
+    createUnsafeMorphAt(node, beginIdx, endIdx) {
+        //TODO(molenzwiebel): Render unsafe morphs.
+        return this.createMorphAt(node, beginIdx, endIdx);
+    }
+
+    /**
+     * Creates a new attribute morph for the specified node.
+     */
+    createAttrMorph(node, attributeName) {
+        const morph = new AttributeMorph(attributeName, null);
+        node.attributeMorphs.push(morph);
+        return morph;
+    }
+
+    /**
+     * Detects namespaces, but we don't care.
+     */
+    detectNamespace(arg) {}
+
+    /**
+     * Inserts boundaries, but not interesting for us.
+     */
+    insertBoundary(node, idx) {}
+}
+
 /**
  * Represents a node in the fake dom that we create for HTMLBars to modify.
  */

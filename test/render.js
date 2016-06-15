@@ -1,5 +1,8 @@
+"use strict";
+import "./setup";
+
 import { Node, DocumentFragmentNode, ElementNode, TextNode, CommentNode, MorphNode } from "../lib/dom";
-import { GetValue, LiteralValue, ConcatValue } from "../lib/value";
+import { GetValue, LiteralValue, ConcatValue, SubexprValue } from "../lib/value";
 import { InlineMorph, AttributeMorph, ElementMorph, ContentMorph, BlockMorph } from "../lib/morph";
 import { expect } from "chai";
 
@@ -73,11 +76,11 @@ describe("Node", () => {
     describe("CommentNode", () => {
         it("can render", () => {
             const node = new CommentNode("foo");
-            expect(node.toString()).to.equal("<!-- foo -->");
+            expect(node.toString()).to.equal("<!--foo-->");
         });
 
         it("respects indentation", () => {
-            const node = new CommentNode("foo");
+            const node = new CommentNode(" foo ");
             expect(node.toString(3)).to.equal("   <!-- foo -->");
         });
     });
@@ -151,6 +154,43 @@ describe("Value", () => {
             ]);
             expect(value.toInlineString()).to.equal(`"The value {{ foo.bar }}."`);
             expect(value.toValueString()).to.equal(`"The value {{ foo.bar }}."`);
+        });
+
+        it("should render subexpressions", () => {
+            const value = new ConcatValue([
+                new LiteralValue("The value "),
+                new SubexprValue("foo", [], {}),
+                new LiteralValue(".")
+            ]);
+
+            expect(value.toInlineString()).to.equal(`"The value {{ foo }}."`);
+            expect(value.toValueString()).to.equal(`"The value {{ foo }}."`);
+        });
+    });
+
+    describe("SubexprValue", () => {
+        it("should render without params or hash", () => {
+            const value = new SubexprValue("foo", [], {});
+            expect(value.toInlineString()).to.equal("{{ foo }}");
+            expect(value.toValueString()).to.equal("{{ foo }}");
+        });
+
+        it("should render with params", () => {
+            const value = new SubexprValue("foo", [new LiteralValue(10)], {});
+            expect(value.toInlineString()).to.equal("{{ foo 10 }}");
+            expect(value.toValueString()).to.equal("{{ foo 10 }}");
+        });
+
+        it("should render with hashes", () => {
+            const value = new SubexprValue("foo", [], { bar: new LiteralValue(10) });
+            expect(value.toInlineString()).to.equal("{{ foo bar=10 }}");
+            expect(value.toValueString()).to.equal("{{ foo bar=10 }}");
+        });
+
+        it("should render with both params and hashes", () => {
+            const value = new SubexprValue("foo", [new LiteralValue(10)], { bar: new LiteralValue(10) });
+            expect(value.toInlineString()).to.equal("{{ foo 10 bar=10 }}");
+            expect(value.toValueString()).to.equal("{{ foo 10 bar=10 }}");
         });
     });
 });

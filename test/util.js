@@ -1,3 +1,6 @@
+"use strict";
+import "./setup";
+
 import { safeEval, definePath } from "../lib/util";
 import { expect } from "chai";
 

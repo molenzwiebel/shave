@@ -68,3 +68,29 @@ export class ConcatValue extends Value {
         }).join("") + "\"";
     }
 }
+
+/**
+ * "Foo {{ helperName params... hash... }}"
+ */
+export class SubexprValue extends Value {
+    constructor(helperName, params, hash) {
+        super();
+        this.helperName = helperName;
+        this.params = params;
+        this.hash = hash;
+    }
+
+    toInlineString() {
+        return this.toValueString();
+    }
+
+    toValueString() {
+        const paramString = this.params.map(p => p.toValueString()).join(" ");
+        const hashString = Object.keys(this.hash).map(h => h + "=" + this.hash[h].toValueString()).join(" ");
+
+        return "{{ " + this.helperName
+            + (paramString ? " " + paramString : "")
+            + (hashString ? " " + hashString : "")
+            + " }}";
+    }
+}

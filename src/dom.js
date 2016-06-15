@@ -37,6 +37,13 @@ export default class HTMLBarsDOM {
     }
 
     /**
+     * Creates a plain element.
+     */
+    createElement(tagName) {
+        return new ElementNode(tagName);
+    }
+
+    /**
      * Appends `child` to `parent`.
      */
     appendChild(parent, child) {
@@ -179,7 +186,7 @@ export class CommentNode extends Node {
     }
 
     toString(indent = 0, args = {}) {
-        return " ".repeat(indent) + "<!-- " + this.contents + " -->";
+        return " ".repeat(indent) + "<!--" + this.contents + "-->";
     }
 }
 

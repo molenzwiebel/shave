@@ -48,6 +48,7 @@ export default class HTMLBarsDOM {
      */
     appendChild(parent, child) {
         parent.children.push(child);
+        child.parent = parent;
     }
 
     /**
@@ -122,6 +123,11 @@ export class Node {
          * node. These dynamically resolve to a value.
          */
         this.attributeMorphs = [];
+
+        /**
+         * If we are at some point added to a parent, we record our parent.
+         */
+        this.parent = null;
     }
 }
 

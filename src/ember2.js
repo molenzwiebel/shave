@@ -67,6 +67,9 @@ const EXPRESSION_PARSERS = {
     },
 
     subexpr(name, rawParams, rawHash) {
+        // Remove {{ @mut foo }}, because it seems to be a helper.
+        if (name === "@mut") return convertParams(rawParams)[0];
+
         return new SubexprValue(
             name,
             convertParams(rawParams),
@@ -85,7 +88,7 @@ function evaluateExpression([op, ...args]) {
 }
 
 const STATEMENT_PARSERS = {
-    inline(el, morph, name, params, hash) {
+    inline(el, morph, templates, name, params, hash) {
         morph.morph = new InlineMorph(
             name,
             convertParams(params),
@@ -93,11 +96,11 @@ const STATEMENT_PARSERS = {
         );
     },
 
-    attribute(el, morph, name, value) {
+    attribute(el, morph, templates, name, value) {
         morph.value = convertParams([value])[0];
     },
 
-    element(el, morph, name, params, hash) {
+    element(el, morph, templates, name, params, hash) {
         el.inlineMorphs.push(new ElementMorph(
             name,
             convertParams(params),
@@ -105,25 +108,36 @@ const STATEMENT_PARSERS = {
         ));
     },
 
-    content(el, morph, cont) {
+    content(el, morph, templates, cont) {
         morph.morph = new ContentMorph(cont);
+    },
+
+    block(el, morph, templates, name, params, hash, templateId, inverseId) {
+        console.dir(inverseId);
+        morph.morph = new BlockMorph(
+            name,
+            convertParams(params),
+            convertHash(hash),
+            render(templates[templateId]),
+            inverseId != null ? render(templates[inverseId]) : null
+        );
     }
 };
 
 /**
  * Evaluates a statement array.
  */
-function evaluateStatement(el, morph, [op, ...args]) {
+function evaluateStatement(el, morph, templates, [op, ...args]) {
     if (!STATEMENT_PARSERS[op]) throw new Error("Invalid statement '" + op + "'");
 
-    return STATEMENT_PARSERS[op](el, morph, ...args);
+    return STATEMENT_PARSERS[op](el, morph, templates, ...args);
 }
 
 /**
  * Responsible for converting the specified javascript object.
  * Does so by evaluating nodes.
  */
-export default function(template) {
+export default function render(template) {
     validateTemplate(template);
 
     const dom = new HTMLBarsDOM();
@@ -133,7 +147,7 @@ export default function(template) {
     if (morphs.length !== template.statements.length) throw new Error("Invalid result from buildRenderNodes()");
 
     for (let i = 0; i < morphs.length; i++) {
-        evaluateStatement(morphs[i].parent, morphs[i], template.statements[i]);
+        evaluateStatement(morphs[i].parent, morphs[i], template.templates, template.statements[i]);
     }
 
     return fragment;

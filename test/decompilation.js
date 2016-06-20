@@ -125,16 +125,6 @@ export default function(test) {
             expect(test("{{ foo }}")).to.equal("{{ foo }}");
             expect(test("{{ foo.bar }}")).to.equal("{{ foo.bar }}");
         });
-
-        it("should treat strings the same way as paths", () => {
-            expect(test("{{ foo }}")).to.equal("{{ foo }}");
-            expect(test("{{ 'foo' }}")).to.equal("{{ foo }}");
-        });
-
-        it("should copy any literal value", () => {
-            expect(test("{{ 'foo' }}")).to.equal("{{ foo }}");
-            expect(test("{{ 10 }}")).to.equal("{{ 10 }}");
-        });
     });
 
     describe("block()", () => {

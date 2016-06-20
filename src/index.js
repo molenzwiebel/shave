@@ -62,9 +62,9 @@ export default function(stringContents, options = {}) {
 
     // Check the resulting object to see what to do with it.
     if (!template) throw new Error("Ember.HTMLBars.template not invoked.");
-    if (!template.revision) throw new Error("Invalid template: revision missing.");
+    if (!template.revision && (!template.meta || !template.meta.revision)) throw new Error("Invalid template: revision missing.");
 
-    const majorVersion = +/Ember@(\d+).*/.exec(template.revision)[1];
+    const majorVersion = +/Ember@(\d+).*/.exec(template.revision || template.meta.revision)[1];
     if (majorVersion !== 1 && majorVersion !== 2) throw new Error("Unsupported HTMLBars/Ember version: " + template.revision);
 
     // Decompile, return result.

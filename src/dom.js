@@ -75,6 +75,15 @@ export default class HTMLBarsDOM {
     }
 
     /**
+     * Creates a new morph that simply refers to the current node.
+     */
+    createElementMorph(node, namespace) {
+        const morph = new MorphNode(null);
+        morph.parent = node;
+        return morph;
+    }
+
+    /**
      * Creates a new `unsafe` morph.
      * @see createMorphAt
      */
